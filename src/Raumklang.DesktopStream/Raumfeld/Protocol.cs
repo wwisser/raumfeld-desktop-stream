@@ -113,7 +113,7 @@ public static class Protocol
         return xml.Descendants().FirstOrDefault(e => e.Name.LocalName == name)?.Value ?? "";
     }
 
-    public static Renderer? ParseRenderer(XDocument document, Uri location, string zoneUdn)
+    public static Renderer? ParseRenderer(XDocument document, Uri location, string zoneUdn, string serviceName = "AVTransport")
     {
         string baseText = Value(document, "URLBase");
         Uri baseUri = string.IsNullOrEmpty(baseText) ? location : new Uri(baseText);
@@ -129,7 +129,7 @@ public static class Protocol
                 .FirstOrDefault(element => element.Name.LocalName == "serviceList")?
                 .Elements()
                 .FirstOrDefault(element => Value(element, "serviceType")
-                    .StartsWith("urn:schemas-upnp-org:service:AVTransport:", StringComparison.Ordinal));
+                    .StartsWith($"urn:schemas-upnp-org:service:{serviceName}:", StringComparison.Ordinal));
             if (service != null)
             {
                 return new(Field("friendlyName"), zoneUdn, new Uri(baseUri, Value(service, "controlURL")), Value(service, "serviceType"));

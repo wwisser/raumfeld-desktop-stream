@@ -23,6 +23,8 @@ public sealed record SessionStatus
     public long DroppedPcmBytes { get; init; }
     public int HttpClients { get; init; }
     public DateTimeOffset? ReceiverCheckedAt { get; init; }
+    public double PcmBufferedMilliseconds { get; init; }
+    public double EncoderFirstOutputInputMilliseconds { get; init; }
 }
 
 public sealed class Session(Configuration config)
@@ -58,7 +60,9 @@ public sealed class Session(Configuration config)
         DroppedPcmBytes = _audio?.DroppedBytes ?? 0,
         HttpClients = _server?.ClientCount ?? 0,
         CaptureActive = _audio?.IsCapturing ?? false,
-        Capture = _audio?.DeviceName ?? Volatile.Read(ref _status).Capture
+        Capture = _audio?.DeviceName ?? Volatile.Read(ref _status).Capture,
+        PcmBufferedMilliseconds = _audio?.BufferedMilliseconds ?? 0,
+        EncoderFirstOutputInputMilliseconds = _audio?.EncoderFirstOutputInputMilliseconds ?? 0
     };
 
     private void Set(string state, string? error = null)

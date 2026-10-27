@@ -5,6 +5,7 @@ using System.Text.Json;
 using NAudio.CoreAudioApi;
 using Raumklang.DesktopStream;
 using Raumklang.DesktopStream.Audio;
+using Raumklang.DesktopStream.Diagnostics;
 using Raumklang.DesktopStream.Raumfeld;
 using Raumklang.DesktopStream.Runtime;
 
@@ -16,11 +17,16 @@ if (!OperatingSystem.IsWindows())
 
 string command = args.FirstOrDefault() ?? "status";
 string? configPath = null;
+bool allowMicrophone = false;
 for (int i = 1; i < args.Length; i++)
 {
     if (args[i] == "--config" && i + 1 < args.Length)
     {
         configPath = Path.GetFullPath(args[++i]);
+    }
+    else if (args[i] == "--microphone")
+    {
+        allowMicrophone = true;
     }
     else
     {
@@ -84,6 +90,16 @@ try
     }
 
     var config = Configuration.Load(configPath);
+    if (command == "latency")
+    {
+        if (!allowMicrophone)
+        {
+            throw new InvalidOperationException("latency requires --microphone to permit a short microphone measurement.");
+        }
+
+        using var measurement = new CancellationTokenSource(TimeSpan.FromSeconds(45));
+        return await LatencyMeasurement.RunAsync(config, measurement.Token);
+    }
     Log.Verbose = config.LogLevel == "debug";
     if (command == "doctor")
     {
@@ -160,7 +176,7 @@ try
 
     if (command is not ("run" or "worker"))
     {
-        Console.Error.WriteLine("Usage: Raumklang.DesktopStream start|stop|status|doctor|logs|run [--config path]");
+        Console.Error.WriteLine("Usage: Raumklang.DesktopStream start|stop|status|doctor|logs|run|latency [--config path] [--microphone]");
         return 2;
     }
 
@@ -289,7 +305,7 @@ static async Task<int> DoctorAsync(Configuration config)
             try
             {
                 await Session.ProbeStreamAsync(server.Url, http, timeout.Token);
-                Console.WriteLine("[OK] WASAPI, native MP3 encoder and HTTP listener smoke test");
+                Console.WriteLine("[OK] WASAPI, MP3 and HTTP listener smoke test");
             }
             finally
             {

@@ -17,7 +17,7 @@ public sealed class StreamClient(IPAddress? address) : IDisposable
     private bool _ended;
     public Guid Id { get; } = Guid.NewGuid();
     public IPAddress? Address { get; } = address;
-    public Channel<byte[]> Queue { get; } = Channel.CreateBounded<byte[]>(new BoundedChannelOptions(4) { FullMode = BoundedChannelFullMode.Wait, SingleReader = true, SingleWriter = true });
+    public Channel<byte[]> Queue { get; } = Channel.CreateBounded<byte[]>(new BoundedChannelOptions(16) { FullMode = BoundedChannelFullMode.Wait, SingleReader = true, SingleWriter = true });
     public CancellationTokenSource End { get; } = new();
 
     public long Bytes;

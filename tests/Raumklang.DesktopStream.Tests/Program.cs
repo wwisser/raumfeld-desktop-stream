@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
@@ -12,6 +13,7 @@ using NAudio.Lame;
 using NAudio.Wave;
 using Raumklang.DesktopStream;
 using Raumklang.DesktopStream.Audio;
+using Raumklang.DesktopStream.Diagnostics;
 using Raumklang.DesktopStream.Raumfeld;
 using Raumklang.DesktopStream.Runtime;
 using Raumklang.DesktopStream.Streaming;
@@ -196,6 +198,64 @@ foreach (int rate in new[]
     });
 }
 
+await TestAsync("streaming MP3 emits frames without the one-second file buffer", () =>
+{
+    foreach (int rate in new[] { 44100, 48000 })
+    {
+        using var output = new MemoryStream();
+        using var encoder = new StreamingMp3Encoder(output, WaveFormat.CreateIeeeFloatWaveFormat(rate, 2), 192);
+        byte[] block = new byte[rate / 100 * 8];
+        using var oldOutput = new MemoryStream();
+        using var oldEncoder = new LameMP3FileWriter(oldOutput, WaveFormat.CreateIeeeFloatWaveFormat(rate, 2),
+            new LameConfig { BitRate = 192, WriteVBRTag = false });
+        int oldFirstOutput = 0;
+        for (int index = 0; index < 200; index++)
+        {
+            encoder.Write(block);
+            oldEncoder.Write(block, 0, block.Length);
+            if (oldFirstOutput == 0 && oldOutput.Length > 0)
+            {
+                oldFirstOutput = (index + 1) * 10;
+            }
+        }
+
+        Check(encoder.FirstOutputInputMilliseconds is > 0 and <= 100, "MP3 output waited more than 100 ms of input");
+        Check(oldFirstOutput == 1000, "Unexpected file-wrapper batching; revise the latency comparison");
+        Check(ValidFrames(output.ToArray(), rate) > 30, "Streaming encoder did not produce complete stereo MP3 frames");
+        Console.WriteLine($"MP3 {rate} Hz first output: {oldFirstOutput} ms before, {encoder.FirstOutputInputMilliseconds:F1} ms now.");
+    }
+
+    return Task.CompletedTask;
+});
+
+await TestAsync("acoustic correlation finds a delayed chirp and rejects silence", () =>
+{
+    float[] chirp = LatencyMeasurement.CreateChirp(8000);
+    float[] recording = new float[32000];
+    var random = new Random(42);
+    for (int index = 0; index < recording.Length; index++)
+    {
+        recording[index] = (float)((random.NextDouble() - 0.5) * 0.002);
+    }
+
+    for (int index = 0; index < chirp.Length; index++)
+    {
+        recording[12345 + index] += chirp[index] * 0.4f;
+    }
+
+    CorrelationPeak peak = LatencyMeasurement.FindPeak(recording, chirp, 0, recording.Length);
+    Check(Math.Abs(peak.Sample - 12345) <= 1 && peak.Confidence > 0.95, "Incorrect acoustic delay or correlation confidence");
+    for (int index = 0; index < chirp.Length; index++)
+    {
+        recording[2000 + index] += chirp[index];
+    }
+
+    CorrelationPeak speaker = LatencyMeasurement.FindPeak(recording, chirp, 0, recording.Length, [2000]);
+    Check(Math.Abs(speaker.Sample - 12345) <= 1, "Local leakage was mistaken for the speaker signal");
+    Check(LatencyMeasurement.FindPeak(new float[32000], chirp, 0, 32000).Confidence == 0, "Silence reported as a measurement");
+    return Task.CompletedTask;
+});
+
 await TestAsync("live HTTP MP3 headers, dynamic URL, disconnect/reconnect, silence bytes and cleanup", async () =>
 {
     await using var server = new AudioHttpServer();
@@ -325,6 +385,12 @@ if (args.Contains("--audio-smoke"))
         {
             await Session.ProbeStreamAsync(server.Url, http, stop.Token);
             Check(!task.IsFaulted, "Audio task faulted");
+            long before = server.EncodedBytes;
+            var clock = Stopwatch.StartNew();
+            await Task.Delay(2000, stop.Token);
+            double expected = clock.Elapsed.TotalSeconds * 192_000 / 8;
+            double ratio = (server.EncodedBytes - before) / expected;
+            Check(ratio is > 0.85 and < 1.15, "Audio output clock drifted when timer ticks were delayed");
         }
         finally
         {

@@ -73,7 +73,8 @@ public sealed class RaumfeldClient(HttpClient http, Uri host)
         }
     }
 
-    public async Task<Renderer?> ResolveRendererAsync(string zoneUdn, CancellationToken cancellationToken)
+    public async Task<Renderer?> ResolveRendererAsync(string zoneUdn, CancellationToken cancellationToken,
+        string serviceName = "AVTransport")
     {
         XDocument devices = await GetXmlAsync("listDevices", cancellationToken);
         XElement[] entries = [.. devices.Descendants().Where(e => e.Name.LocalName == "device")];
@@ -90,7 +91,7 @@ public sealed class RaumfeldClient(HttpClient http, Uri host)
             try
             {
                 var doc = XDocument.Parse(await http.GetStringAsync(location, cancellationToken));
-                Renderer? renderer = Protocol.ParseRenderer(doc, location, zoneUdn);
+                Renderer? renderer = Protocol.ParseRenderer(doc, location, zoneUdn, serviceName);
                 if (renderer != null)
                 {
                     return renderer;
@@ -141,6 +142,24 @@ public sealed class RaumfeldClient(HttpClient http, Uri host)
     public Task<XDocument> StopAsync(Renderer renderer, CancellationToken cancellationToken)
     {
         return SendActionAsync(renderer, "Stop", cancellationToken);
+    }
+
+    public async Task<bool> GetMuteAsync(Renderer renderingControl, CancellationToken cancellationToken)
+    {
+        XDocument response = await SendActionAsync(renderingControl, "GetMute", cancellationToken, ("Channel", "Master"));
+        string value = Protocol.Value(response, "CurrentMute");
+        return value switch
+        {
+            "0" or "false" => false,
+            "1" or "true" => true,
+            _ => throw new IOException("Receiver returned no mute state.")
+        };
+    }
+
+    public Task<XDocument> SetMuteAsync(Renderer renderingControl, bool muted, CancellationToken cancellationToken)
+    {
+        return SendActionAsync(renderingControl, "SetMute", cancellationToken,
+            ("Channel", "Master"), ("DesiredMute", muted ? "1" : "0"));
     }
 
     public async Task<RendererState> GetStateAsync(Renderer renderer, CancellationToken cancellationToken)

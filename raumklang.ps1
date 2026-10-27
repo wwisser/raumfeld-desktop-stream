@@ -1,11 +1,12 @@
 [CmdletBinding()]
 param(
     [Parameter(Position = 0)]
-    [ValidateSet('start', 'stop', 'status', 'doctor', 'logs', 'run', 'build', 'publish', 'test', 'format', 'check')]
+    [ValidateSet('start', 'stop', 'status', 'doctor', 'logs', 'run', 'build', 'publish', 'test', 'format', 'check', 'latency')]
     [string]$Command = 'status',
     [string]$Config,
     [switch]$Follow,
-    [switch]$AudioSmoke
+    [switch]$AudioSmoke,
+    [switch]$Microphone
 )
 
 Set-StrictMode -Version Latest
@@ -71,6 +72,9 @@ try {
     }
 
     $arguments = @($Command)
+    if ($Microphone) {
+        $arguments += '--microphone'
+    }
     if ($Config) {
         $arguments += @('--config', (Resolve-Path -LiteralPath $Config).Path)
     } elseif (Test-Path -LiteralPath (Join-Path $repo 'raumklang.local.json')) {

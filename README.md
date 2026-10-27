@@ -69,6 +69,30 @@ during silence. It follows default-device changes and retries a missing device
 for 30 seconds. Playback in an existing multiroom zone affects the whole zone.
 The HTTP audio stream has no authentication. Keep it on a trusted LAN.
 
+## Latency
+
+MP3 now reaches the encoder in 10 ms blocks, without the file writer's one-second
+input buffer. Capture and HTTP queues stay bounded, and the audio clock catches
+up when Windows delays a timer tick.
+
+The sender produces its first MP3 output after 30 to 40 ms of input instead of
+1,000 ms. This does not measure speaker latency. The controlled acoustic test
+still measured about 3.3 seconds through the Stereo M. Earlier sub-second results
+were ambiguous because the microphone also heard the local output.
+
+To repeat the measurement, put the default Windows microphone near the speaker
+and run this while streaming:
+
+```powershell
+.\raumklang.ps1 latency -Microphone
+```
+
+This briefly mutes the Raumfeld output to identify local leakage, restores its
+mute state, then compares a test chirp's loopback and microphone timing.
+The microphone runs only during this command. Audio stays in memory and is not
+saved. The command excludes local leakage when looking for the speaker signal.
+Normal streaming captures playback audio only.
+
 ## Troubleshooting
 
 Run `doctor` and check `logs`. Log files live in
@@ -108,8 +132,8 @@ playback ownership and worker control. They use a mock receiver.
 playback.
 
 The Stereo M has been tested through discovery, zone creation, playback state,
-HTTP consumption and repeated start/stop. Audible latency and long-session
-stability still need measurement.
+HTTP consumption, acoustic latency and repeated start/stop. Long-session
+stability still needs testing.
 
 Original code uses the [MIT license](LICENSE). Dependency licenses and the
 native encoder's redistribution requirements are listed in [licenses](licenses/README.md).

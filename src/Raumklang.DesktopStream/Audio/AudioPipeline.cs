@@ -1,5 +1,5 @@
+using System.Diagnostics;
 using NAudio.CoreAudioApi;
-using NAudio.Lame;
 using NAudio.Wave;
 
 namespace Raumklang.DesktopStream.Audio;
@@ -8,7 +8,7 @@ public sealed class AudioPipeline : IDisposable
 {
     private readonly Configuration _config;
     private readonly BufferedWaveProvider _pcm;
-    private readonly LameMP3FileWriter _encoder;
+    private readonly StreamingMp3Encoder _encoder;
     private readonly Lock _gate = new();
     private MMDevice? _device;
     private WasapiRecorder? _recorder;
@@ -20,6 +20,8 @@ public sealed class AudioPipeline : IDisposable
     public string DeviceName { get; private set; } = "";
     public WaveFormat Format { get; }
     public long DroppedBytes => Interlocked.Read(ref _droppedBytes);
+    public double EncoderFirstOutputInputMilliseconds => _encoder.FirstOutputInputMilliseconds;
+    public double BufferedMilliseconds => _pcm.BufferedDuration.TotalMilliseconds;
 
     public static MMDevice SelectDevice(string selector)
     {
@@ -59,12 +61,12 @@ public sealed class AudioPipeline : IDisposable
         using AudioClient audioClient = initial.CreateAudioClient();
         int rate = audioClient.MixFormat.SampleRate;
         Format = WaveFormat.CreateIeeeFloatWaveFormat(rate is 44100 or 48000 ? rate : 48000, 2);
-        _pcm = new BufferedWaveProvider(Format, TimeSpan.FromMilliseconds(300))
+        _pcm = new BufferedWaveProvider(Format, TimeSpan.FromMilliseconds(100))
         {
             DiscardOnBufferOverflow = true,
             ReadFully = true
         };
-        _encoder = new LameMP3FileWriter(output, Format, new LameConfig { BitRate = config.BitrateKbps, WriteVBRTag = false });
+        _encoder = new StreamingMp3Encoder(output, Format, config.BitrateKbps);
         try
         {
             OpenCapture();
@@ -82,7 +84,7 @@ public sealed class AudioPipeline : IDisposable
         WasapiRecorder? next = null;
         try
         {
-            next = new WasapiRecorderBuilder().WithDevice(selected).WithLoopbackCapture().WithFormat(Format).WithBufferLength(50).Build();
+            next = new WasapiRecorderBuilder().WithDevice(selected).WithLoopbackCapture().WithFormat(Format).WithBufferLength(20).Build();
             next.DataAvailable += Capture;
             next.RecordingStopped += (_, args) =>
             {
@@ -98,7 +100,7 @@ public sealed class AudioPipeline : IDisposable
             DeviceName = selected.FriendlyName;
             Volatile.Write(ref _captureError, null);
             _capturing = true;
-            Log.Write($"WASAPI loopback: {DeviceName}; {Format.SampleRate} Hz stereo float -> MP3 {_config.BitrateKbps} kbps");
+            Log.Write($"WASAPI loopback: {DeviceName}; {Format.SampleRate} Hz stereo -> MP3 {_config.BitrateKbps} kbps");
         }
         catch
         {
@@ -161,24 +163,40 @@ public sealed class AudioPipeline : IDisposable
     private async Task EncodeAsync(CancellationToken cancellationToken)
     {
         // Read on the audio clock. The PCM buffer supplies silence on underrun.
-        await Task.Delay(100, cancellationToken);
-        using var clock = new PeriodicTimer(TimeSpan.FromMilliseconds(20));
-        byte[] block = new byte[Format.SampleRate / 50 * Format.BlockAlign];
+        await Task.Delay(20, cancellationToken);
+        using var clock = new PeriodicTimer(TimeSpan.FromMilliseconds(10));
+        byte[] block = new byte[Format.SampleRate / 100 * Format.BlockAlign];
+        var elapsed = Stopwatch.StartNew();
+        long processedFrames = 0;
+        int blockFrames = block.Length / Format.BlockAlign;
         while (await clock.WaitForNextTickAsync(cancellationToken))
         {
-            lock (_gate)
+            long targetFrames = elapsed.ElapsedTicks * Format.SampleRate / Stopwatch.Frequency;
+            long dueFrames = targetFrames - processedFrames;
+            if (dueFrames > Format.SampleRate / 10)
             {
-                // Discard stale PCM after a scheduler stall or clock drift.
-                while (_pcm.BufferedDuration.TotalMilliseconds > 180)
-                {
-                    int removed = _pcm.Read(block);
-                    Interlocked.Add(ref _droppedBytes, removed);
-                }
-
-                _pcm.Read(block);
+                processedFrames = targetFrames - (Format.SampleRate / 10);
+                dueFrames = targetFrames - processedFrames;
             }
 
-            _encoder.Write(block, 0, block.Length);
+            while (dueFrames >= blockFrames)
+            {
+                lock (_gate)
+                {
+                    // Discard stale PCM after a scheduler stall or clock drift.
+                    while (_pcm.BufferedDuration.TotalMilliseconds > 60)
+                    {
+                        int removed = _pcm.Read(block);
+                        Interlocked.Add(ref _droppedBytes, removed);
+                    }
+
+                    _pcm.Read(block);
+                }
+
+                _encoder.Write(block);
+                processedFrames += blockFrames;
+                dueFrames -= blockFrames;
+            }
         }
     }
 
