@@ -1,0 +1,106 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+[*.{csproj,props,slnx,json,yml,yaml,xml}]
+indent_size = 2
+
+[*.cs]
+# Microsoft C# conventions: https://learn.microsoft.com/dotnet/csharp/fundamentals/coding-style/coding-conventions
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+dotnet_diagnostic.IDE0055.severity = error
+dotnet_analyzer_diagnostic.category-Style.severity = error
+dotnet_diagnostic.IDE0058.severity = none
+
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_new_line_before_members_in_object_initializers = true
+csharp_new_line_before_members_in_anonymous_types = true
+csharp_new_line_between_query_expression_clauses = true
+csharp_indent_case_contents = true
+csharp_indent_switch_labels = true
+csharp_indent_labels = one_less_than_current
+csharp_indent_braces = false
+csharp_preserve_single_line_blocks = true
+csharp_preserve_single_line_statements = false
+csharp_prefer_braces = true:error
+csharp_using_directive_placement = outside_namespace:error
+csharp_style_namespace_declarations = file_scoped:error
+csharp_style_var_for_built_in_types = false:error
+csharp_style_var_when_type_is_apparent = true:error
+csharp_style_var_elsewhere = false:error
+csharp_style_expression_bodied_methods = false:error
+csharp_style_expression_bodied_constructors = false:error
+csharp_style_expression_bodied_properties = when_on_single_line:error
+csharp_style_expression_bodied_accessors = when_on_single_line:error
+csharp_style_expression_bodied_operators = when_on_single_line:error
+csharp_style_expression_bodied_local_functions = when_on_single_line:error
+csharp_style_prefer_primary_constructors = false:error
+dotnet_style_prefer_conditional_expression_over_return = false:error
+dotnet_style_prefer_conditional_expression_over_assignment = false:error
+dotnet_style_qualification_for_field = false:error
+dotnet_style_qualification_for_property = false:error
+dotnet_style_qualification_for_method = false:error
+dotnet_style_qualification_for_event = false:error
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:error
+
+dotnet_naming_rule.private_instance_fields.severity = error
+dotnet_naming_rule.private_instance_fields.symbols = private_instance_fields
+dotnet_naming_rule.private_instance_fields.style = underscore_camel_case
+dotnet_naming_symbols.private_instance_fields.applicable_kinds = field
+dotnet_naming_symbols.private_instance_fields.applicable_accessibilities = private
+dotnet_naming_style.underscore_camel_case.required_prefix = _
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case
+
+dotnet_naming_rule.private_static_fields.severity = error
+dotnet_naming_rule.private_static_fields.symbols = private_static_fields
+dotnet_naming_rule.private_static_fields.style = static_camel_case
+dotnet_naming_symbols.private_static_fields.applicable_kinds = field
+dotnet_naming_symbols.private_static_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_static_fields.required_modifiers = static
+dotnet_naming_style.static_camel_case.required_prefix = s_
+dotnet_naming_style.static_camel_case.capitalization = camel_case
+
+dotnet_naming_rule.constants.severity = error
+dotnet_naming_rule.constants.symbols = constants
+dotnet_naming_rule.constants.style = pascal_case
+dotnet_naming_symbols.constants.applicable_kinds = field
+dotnet_naming_symbols.constants.required_modifiers = const
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+dotnet_naming_rule.types.severity = error
+dotnet_naming_rule.types.symbols = types
+dotnet_naming_rule.types.style = pascal_case
+dotnet_naming_symbols.types.applicable_kinds = class, struct, interface, enum, delegate
+
+dotnet_naming_rule.members.severity = error
+dotnet_naming_rule.members.symbols = members
+dotnet_naming_rule.members.style = pascal_case
+dotnet_naming_symbols.members.applicable_kinds = property, event, method, local_function
+
+dotnet_naming_rule.async_methods.severity = error
+dotnet_naming_rule.async_methods.symbols = async_methods
+dotnet_naming_rule.async_methods.style = async_pascal_case
+dotnet_naming_symbols.async_methods.applicable_kinds = method, local_function
+dotnet_naming_symbols.async_methods.required_modifiers = async
+dotnet_naming_style.async_pascal_case.capitalization = pascal_case
+dotnet_naming_style.async_pascal_case.required_suffix = Async
+
+dotnet_naming_rule.parameters_and_locals.severity = error
+dotnet_naming_rule.parameters_and_locals.symbols = parameters_and_locals
+dotnet_naming_rule.parameters_and_locals.style = camel_case
+dotnet_naming_symbols.parameters_and_locals.applicable_kinds = parameter, local
+dotnet_naming_style.camel_case.capitalization = camel_case
+
+[licenses/**]
+# Preserve the upstream license texts.
+trim_trailing_whitespace = false

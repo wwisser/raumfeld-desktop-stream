@@ -1,0 +1,11 @@
+{
+  "roomName": null,
+  "raumfeldHost": "auto",
+  "raumfeldPort": 47365,
+  "audioDevice": "default",
+  "localAddress": null,
+  "streamPort": 0,
+  "bitrateKbps": 192,
+  "startupTimeoutSeconds": 90,
+  "logLevel": "info"
+}

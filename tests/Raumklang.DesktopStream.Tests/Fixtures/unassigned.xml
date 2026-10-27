@@ -1,0 +1,7 @@
+<zoneConfig numRooms="1" spotifyMode="singleRoom">
+  <unassignedRooms>
+    <room name="Wohnzimmer" udn="uuid:6129ac01-b954-4e95-984c-85706f182557" powerState="AUTOMATIC_STANDBY">
+      <renderer name="Speaker Wohnzimmer #2" spotifyConnect="active" udn="uuid:73bf5950-bc33-4a43-abe9-ef557ecdb195" />
+    </room>
+  </unassignedRooms>
+</zoneConfig>
