@@ -1,49 +1,45 @@
-# Raumfeld Desktop Stream
+<p align="center">
+  <img src="src/Raumfeld.Tray/Assets/raumfeld.png" width="140" alt="Raumfeld emblem with DESKTOP underneath" />
+</p>
+
+<h1 align="center">Raumfeld Desktop Stream</h1>
 
 Stream Windows system audio to Teufel Raumfeld speakers over your LAN.
 The app captures your playback device through WASAPI loopback, encodes MP3 and
 serves it over HTTP. It discovers the room, creates a playback zone if needed,
 and starts the speaker. SWYH, Node.js and Raumserver are not required.
 
+<p align="center">
+  <img src="docs/images/tray-panel.png" width="360" alt="Raumfeld Desktop tray panel with room, audio source, streaming controls and login startup enabled" />
+</p>
+
 ## Windows tray and installation
 
 Run `artifacts/installer/Raumfeld-Setup.exe` to install for your Windows user.
-The installer includes the .NET runtime, adds a Start menu shortcut and enables
-**Open Raumfeld at Windows login** by default. No administrator account is needed.
-Login starts the tray quietly; press **Start streaming** when you want to send audio.
-Uninstall through Windows Installed apps. Configuration and logs are retained.
+It includes the .NET runtime and a Start menu shortcut. No administrator access
+is needed. The tray opens at Windows login by default, but streaming starts
+only when you press Start streaming. You can turn login startup off in the panel.
 
-Click the notification icon to open the compact control panel. It shows the
-selected room and Windows audio source side by side, with the stream state above.
-Hover over the status for connection details and bytes sent, or over a truncated
-room/source name to read it in full. Start/stop controls reuse the CLI worker.
-Clicking outside the panel or
-pressing Escape hides it; **Quit** stops streaming and exits the tray. Right-click
-the icon for quick controls. Opening the app again shows the existing panel.
-Windows may initially put the icon in the notification area's overflow menu.
+Click the tray icon to open the controls. Windows may put it in the overflow
+menu. Hover over a room or audio source to read its full name, or over the
+status for stream details. Click outside or press Escape to hide the panel.
+Quit stops streaming and closes the app. Logs opens the log file in Notepad.
 
-The panel provides a login-startup toggle, **Logs** and **Quit**. Its centered,
-black-and-white layout is 360 × 224 logical pixels, with no title bar, and opens
-above the notification area. The Raumfeld emblem appears above **DESKTOP** on
-white. Edit the JSON configuration directly and restart streaming to apply it.
-An existing configuration from the previous app name is imported automatically
-when no new configuration exists. Installation replaces the old startup entry.
+Edit the [configuration file](#configuration) to change rooms or audio devices,
+then restart streaming. The app imports configuration from the previous app
+name if no current configuration exists. Setup replaces the old startup entry.
+Uninstall through Windows Installed apps. Your configuration and logs stay on disk.
+
+To run the tray without installing:
 
 ```powershell
 .\raumfeld.ps1 build
 .\raumfeld.ps1 tray
-.\raumfeld.ps1 publish
-# Install Inno Setup 6, then build the self-contained Windows installer:
-.\scripts\Build-Installer.ps1
-# Optional: -Compiler C:\path\to\ISCC.exe -Version 1.2.3
 ```
 
-Installer builds stage files in a fresh folder under `artifacts/package` and write
-`artifacts/installer/Raumfeld-Setup.exe`. This allows an existing published
-stream to keep running while building. The setup executable is unsigned.
-Portable users can run `Raumfeld.Tray.exe` from the publish folder;
-`--hidden` starts with only the notification icon, and `--config <path>` selects
-a configuration file. The CLI remains available as `Raumfeld.DesktopStream.exe`.
+After publishing, run `Raumfeld.Tray.exe` from the publish folder. Pass `--hidden`
+to start with only the tray icon, or `--config <path>` to use a configuration file.
+Use `Raumfeld.DesktopStream.exe` for CLI commands.
 
 ## Build and run
 
@@ -174,6 +170,19 @@ playback.
 The Stereo M has been tested through discovery, zone creation, playback state,
 HTTP consumption, acoustic latency and repeated start/stop. Long-session
 stability still needs testing.
+
+### Build the installer
+
+Install [Inno Setup 6](https://jrsoftware.org/isinfo.php), then run:
+
+```powershell
+.\scripts\Build-Installer.ps1
+# Optional: -Compiler C:\path\to\ISCC.exe -Version 1.2.3
+```
+
+The script publishes to a fresh folder under `artifacts/package` and writes
+`artifacts/installer/Raumfeld-Setup.exe`. It can build while an existing stream
+keeps running. The installer is unsigned.
 
 Original code uses the [MIT license](LICENSE). Dependency licenses and the
 native encoder's redistribution requirements are listed in [licenses](licenses/README.md).
