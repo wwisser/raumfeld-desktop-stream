@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/Raumfeld.Tray/Assets/raumfeld.png" width="140" alt="Raumfeld emblem with DESKTOP underneath" />
+  <img src="docs/images/tray-panel.png" width="360" alt="Raumfeld Desktop tray panel with room, audio source, streaming controls and login startup enabled" />
 </p>
 
 <h1 align="center">Raumfeld Desktop Stream</h1>
@@ -8,10 +8,6 @@ Stream Windows system audio to Teufel Raumfeld speakers over your LAN.
 The app captures your playback device through WASAPI loopback, encodes MP3 and
 serves it over HTTP. It discovers the room, creates a playback zone if needed,
 and starts the speaker. SWYH, Node.js and Raumserver are not required.
-
-<p align="center">
-  <img src="docs/images/tray-panel.png" width="360" alt="Raumfeld Desktop tray panel with room, audio source, streaming controls and login startup enabled" />
-</p>
 
 ## Windows tray and installation
 
