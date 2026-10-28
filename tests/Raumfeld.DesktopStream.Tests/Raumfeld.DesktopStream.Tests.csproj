@@ -7,7 +7,7 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/Raumklang.DesktopStream/Raumklang.DesktopStream.csproj" />
+    <ProjectReference Include="../../src/Raumfeld.DesktopStream/Raumfeld.DesktopStream.csproj" />
     <Content Include="Fixtures/*.xml" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

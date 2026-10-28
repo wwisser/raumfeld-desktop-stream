@@ -1,8 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/Raumklang.DesktopStream/Raumklang.DesktopStream.csproj" />
-  </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/Raumklang.DesktopStream.Tests/Raumklang.DesktopStream.Tests.csproj" />
-  </Folder>
-</Solution>

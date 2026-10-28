@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Xml.Linq;
 
-namespace Raumklang.DesktopStream.Raumfeld;
+namespace Raumfeld.DesktopStream.Raumfeld;
 
 public sealed class RaumfeldClient(HttpClient http, Uri host)
 {

@@ -3,11 +3,11 @@ using System.Runtime.InteropServices;
 using NAudio.CoreAudioApi;
 using NAudio.Dsp;
 using NAudio.Wave;
-using Raumklang.DesktopStream.Audio;
-using Raumklang.DesktopStream.Raumfeld;
-using Raumklang.DesktopStream.Runtime;
+using Raumfeld.DesktopStream.Audio;
+using Raumfeld.DesktopStream.Raumfeld;
+using Raumfeld.DesktopStream.Runtime;
 
-namespace Raumklang.DesktopStream.Diagnostics;
+namespace Raumfeld.DesktopStream.Diagnostics;
 
 public sealed record CorrelationPeak(int Sample, double Confidence);
 internal sealed record AcousticProbe(CorrelationPeak Reference, CorrelationPeak Microphone, double MicrophoneRms);

@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <Product>Raumklang Desktop Stream</Product>
-    <Title>Raumklang Desktop Stream</Title>
+    <Product>Raumfeld Desktop Stream</Product>
+    <Title>Raumfeld Desktop Stream</Title>
     <Description>Stream Windows system audio to Raumfeld speakers.</Description>
     <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

@@ -1,9 +1,49 @@
-# Raumklang Desktop Stream
+# Raumfeld Desktop Stream
 
 Stream Windows system audio to Teufel Raumfeld speakers over your LAN.
 The app captures your playback device through WASAPI loopback, encodes MP3 and
 serves it over HTTP. It discovers the room, creates a playback zone if needed,
 and starts the speaker. SWYH, Node.js and Raumserver are not required.
+
+## Windows tray and installation
+
+Run `artifacts/installer/Raumfeld-Setup.exe` to install for your Windows user.
+The installer includes the .NET runtime, adds a Start menu shortcut and enables
+**Open Raumfeld at Windows login** by default. No administrator account is needed.
+Login starts the tray quietly; press **Start streaming** when you want to send audio.
+Uninstall through Windows Installed apps. Configuration and logs are retained.
+
+Click the notification icon to open the compact control panel. It shows the
+selected room and Windows audio source side by side, with the stream state above.
+Hover over the status for connection details and bytes sent, or over a truncated
+room/source name to read it in full. Start/stop controls reuse the CLI worker.
+Clicking outside the panel or
+pressing Escape hides it; **Quit** stops streaming and exits the tray. Right-click
+the icon for quick controls. Opening the app again shows the existing panel.
+Windows may initially put the icon in the notification area's overflow menu.
+
+The panel provides a login-startup toggle, **Logs** and **Quit**. Its centered,
+black-and-white layout is 360 × 224 logical pixels, with no title bar, and opens
+above the notification area. The Raumfeld emblem appears above **DESKTOP** on
+white. Edit the JSON configuration directly and restart streaming to apply it.
+An existing configuration from the previous app name is imported automatically
+when no new configuration exists. Installation replaces the old startup entry.
+
+```powershell
+.\raumfeld.ps1 build
+.\raumfeld.ps1 tray
+.\raumfeld.ps1 publish
+# Install Inno Setup 6, then build the self-contained Windows installer:
+.\scripts\Build-Installer.ps1
+# Optional: -Compiler C:\path\to\ISCC.exe -Version 1.2.3
+```
+
+Installer builds stage files in a fresh folder under `artifacts/package` and write
+`artifacts/installer/Raumfeld-Setup.exe`. This allows an existing published
+stream to keep running while building. The setup executable is unsigned.
+Portable users can run `Raumfeld.Tray.exe` from the publish folder;
+`--hidden` starts with only the notification icon, and `--config <path>` selects
+a configuration file. The CLI remains available as `Raumfeld.DesktopStream.exe`.
 
 ## Build and run
 
@@ -12,11 +52,11 @@ same LAN. Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet
 to build. The launcher also detects a local SDK in `.tools/dotnet`.
 
 ```powershell
-.\raumklang.ps1 build
-.\raumklang.ps1 doctor
-.\raumklang.ps1 start
-.\raumklang.ps1 status
-.\raumklang.ps1 stop
+.\raumfeld.ps1 build
+.\raumfeld.ps1 doctor
+.\raumfeld.ps1 start
+.\raumfeld.ps1 status
+.\raumfeld.ps1 stop
 ```
 
 `start` runs in the background and waits until the receiver plays the stream and
@@ -25,13 +65,13 @@ network resources. It stops speaker playback only when the speaker still has
 this app's stream loaded.
 
 ```powershell
-.\raumklang.ps1 logs
-.\raumklang.ps1 logs -Follow
-.\raumklang.ps1 run              # Foreground output. Ctrl+C stops the app.
-.\raumklang.ps1 publish
+.\raumfeld.ps1 logs
+.\raumfeld.ps1 logs -Follow
+.\raumfeld.ps1 run              # Foreground output. Ctrl+C stops the app.
+.\raumfeld.ps1 publish
 ```
 
-Publish produces `artifacts/publish/Raumklang.DesktopStream.exe` with its .NET
+Publish produces `artifacts/publish/Raumfeld.DesktopStream.exe` with its .NET
 runtime. Copy the whole folder to another Windows x64 machine. The executable
 accepts `start`, `stop`, `status`, `doctor`, `logs` and `run`.
 The launcher prefers the published copy, so republish after changing source code.
@@ -42,14 +82,14 @@ One room needs no configuration. With several rooms, set `roomName` to the name
 or UDN shown by `doctor`.
 
 ```powershell
-Copy-Item raumklang.example.json raumklang.local.json
-# Edit raumklang.local.json, then start.
-.\raumklang.ps1 start
+Copy-Item raumfeld.example.json raumfeld.local.json
+# Edit raumfeld.local.json, then start.
+.\raumfeld.ps1 start
 ```
 
-The launcher reads `raumklang.local.json` when present. You can also pass
+The launcher reads `raumfeld.local.json` when present. You can also pass
 `-Config <path>`. Otherwise, the app looks for
-`%LOCALAPPDATA%\Raumklang.DesktopStream\config.json`.
+`%LOCALAPPDATA%\Raumfeld.DesktopStream\config.json`.
 Use valid JSON. Unknown settings fail validation. Restart to apply changes.
 
 | Setting | Default | Use |
@@ -84,7 +124,7 @@ To repeat the measurement, put the default Windows microphone near the speaker
 and run this while streaming:
 
 ```powershell
-.\raumklang.ps1 latency -Microphone
+.\raumfeld.ps1 latency -Microphone
 ```
 
 This briefly mutes the Raumfeld output to identify local leakage, restores its
@@ -96,11 +136,11 @@ Normal streaming captures playback audio only.
 ## Troubleshooting
 
 Run `doctor` and check `logs`. Log files live in
-`%LOCALAPPDATA%\Raumklang.DesktopStream\raumklang.log`.
+`%LOCALAPPDATA%\Raumfeld.DesktopStream\raumfeld.log`.
 
 - If discovery fails, check LAN isolation and multicast access, or set
   `raumfeldHost`. Discovery includes unassigned rooms and rooms in standby.
-- If the receiver never connects, allow `Raumklang.DesktopStream.exe` through
+- If the receiver never connects, allow `Raumfeld.DesktopStream.exe` through
   Windows Firewall on your Private network. A local HTTP check cannot prove
   that the speaker can reach the stream.
 - If the wrong adapter is selected, set `localAddress` to the PC's LAN address.
@@ -119,10 +159,10 @@ The code follows [Microsoft's C# conventions](https://learn.microsoft.com/dotnet
 errors. CI checks C# and PowerShell formatting before running tests.
 
 ```powershell
-.\raumklang.ps1 format
-.\raumklang.ps1 check
-.\raumklang.ps1 test
-.\raumklang.ps1 test -AudioSmoke
+.\raumfeld.ps1 format
+.\raumfeld.ps1 check
+.\raumfeld.ps1 test
+.\raumfeld.ps1 test -AudioSmoke
 ```
 
 The first format or check downloads the pinned PowerShell analyzer into `.tools`.

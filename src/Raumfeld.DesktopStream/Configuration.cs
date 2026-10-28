@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace Raumklang.DesktopStream;
+namespace Raumfeld.DesktopStream;
 
 public sealed record Configuration
 {
@@ -20,10 +20,15 @@ public sealed record Configuration
         WriteIndented = true,
         UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow
     };
-    public static string DataDirectory => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Raumklang.DesktopStream");
+    public static string DataDirectory => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Raumfeld.DesktopStream");
 
     public static Configuration Load(string? path)
     {
+        if (path == null)
+        {
+            ImportPreviousConfiguration();
+        }
+
         path ??= Path.Combine(DataDirectory, "config.json");
         Configuration config;
         if (File.Exists(path))
@@ -62,6 +67,24 @@ public sealed record Configuration
 
         return config;
     }
+
+    private static void ImportPreviousConfiguration()
+    {
+        string previous = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Raumklang.DesktopStream", "config.json");
+        string current = Path.Combine(DataDirectory, "config.json");
+        if (!File.Exists(current) && File.Exists(previous))
+        {
+            Directory.CreateDirectory(DataDirectory);
+            try
+            {
+                File.Copy(previous, current, false);
+            }
+            catch (IOException) when (File.Exists(current))
+            {
+                // Another process may have imported or created the configuration.
+            }
+        }
+    }
 }
 
 public static class Log
@@ -76,7 +99,7 @@ public static class Log
         {
             Console.WriteLine(line);
             Directory.CreateDirectory(Configuration.DataDirectory);
-            string path = Path.Combine(Configuration.DataDirectory, "raumklang.log");
+            string path = Path.Combine(Configuration.DataDirectory, "raumfeld.log");
             if (File.Exists(path) && new FileInfo(path).Length > 5_000_000)
             {
                 File.Move(path, path + ".1", true);

@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Raumklang.DesktopStream.Streaming;
+namespace Raumfeld.DesktopStream.Streaming;
 
 public sealed class StreamClient(IPAddress? address) : IDisposable
 {

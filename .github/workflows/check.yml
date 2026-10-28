@@ -17,10 +17,10 @@ jobs:
           dotnet-version: 10.0.x
       - name: Check formatting
         shell: pwsh
-        run: ./raumklang.ps1 check
+        run: ./raumfeld.ps1 check
       - name: Build
         shell: pwsh
-        run: ./raumklang.ps1 build
+        run: ./raumfeld.ps1 build
       - name: Test
         shell: pwsh
-        run: ./raumklang.ps1 test
+        run: ./raumfeld.ps1 test

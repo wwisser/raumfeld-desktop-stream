@@ -1,9 +1,9 @@
 using System.Net;
-using Raumklang.DesktopStream.Audio;
-using Raumklang.DesktopStream.Raumfeld;
-using Raumklang.DesktopStream.Streaming;
+using Raumfeld.DesktopStream.Audio;
+using Raumfeld.DesktopStream.Raumfeld;
+using Raumfeld.DesktopStream.Streaming;
 
-namespace Raumklang.DesktopStream.Runtime;
+namespace Raumfeld.DesktopStream.Runtime;
 
 public sealed record SessionStatus
 {

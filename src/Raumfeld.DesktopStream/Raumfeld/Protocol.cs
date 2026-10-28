@@ -2,7 +2,7 @@
 // Copyright (c) 2021 Christian Dürnberger. See licenses/node-raumkernel-MIT.txt.
 using System.Xml.Linq;
 
-namespace Raumklang.DesktopStream.Raumfeld;
+namespace Raumfeld.DesktopStream.Raumfeld;
 
 public sealed record Room(string Name, string Udn, string? ZoneUdn, string PowerState, IReadOnlyList<RendererIdentity> Renderers);
 public sealed record RendererIdentity(string Name, string Udn);

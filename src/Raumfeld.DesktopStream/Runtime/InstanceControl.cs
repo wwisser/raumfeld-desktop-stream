@@ -4,7 +4,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
 
-namespace Raumklang.DesktopStream.Runtime;
+namespace Raumfeld.DesktopStream.Runtime;
 
 public sealed class InstanceLock : IDisposable
 {
@@ -23,7 +23,7 @@ public sealed class InstanceLock : IDisposable
 
 public static class InstanceControl
 {
-    public static string PipeName => "Raumklang.DesktopStream-" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(WindowsIdentity.GetCurrent().User!.Value)))[..24];
+    public static string PipeName => "Raumfeld.DesktopStream-" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(WindowsIdentity.GetCurrent().User!.Value)))[..24];
 
     public static async Task<SessionStatus?> RequestAsync(string command, int timeoutMs = 1500, string? pipeName = null)
     {

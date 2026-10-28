@@ -2,7 +2,7 @@ using System.Diagnostics;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
-namespace Raumklang.DesktopStream.Audio;
+namespace Raumfeld.DesktopStream.Audio;
 
 public sealed class AudioPipeline : IDisposable
 {

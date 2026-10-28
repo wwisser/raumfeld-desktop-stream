@@ -3,15 +3,15 @@ using System.Net;
 using System.Reflection;
 using System.Text.Json;
 using NAudio.CoreAudioApi;
-using Raumklang.DesktopStream;
-using Raumklang.DesktopStream.Audio;
-using Raumklang.DesktopStream.Diagnostics;
-using Raumklang.DesktopStream.Raumfeld;
-using Raumklang.DesktopStream.Runtime;
+using Raumfeld.DesktopStream;
+using Raumfeld.DesktopStream.Audio;
+using Raumfeld.DesktopStream.Diagnostics;
+using Raumfeld.DesktopStream.Raumfeld;
+using Raumfeld.DesktopStream.Runtime;
 
 if (!OperatingSystem.IsWindows())
 {
-    Console.Error.WriteLine("Raumklang Desktop Stream requires Windows.");
+    Console.Error.WriteLine("Raumfeld Desktop Stream requires Windows.");
     return 1;
 }
 
@@ -39,7 +39,7 @@ try
 {
     if (command == "logs")
     {
-        string path = Path.Combine(Configuration.DataDirectory, "raumklang.log");
+        string path = Path.Combine(Configuration.DataDirectory, "raumfeld.log");
         Console.WriteLine(File.Exists(path) ? string.Join(Environment.NewLine, File.ReadLines(path).TakeLast(100)) : "No logs yet.");
         return 0;
     }
@@ -176,7 +176,7 @@ try
 
     if (command is not ("run" or "worker"))
     {
-        Console.Error.WriteLine("Usage: Raumklang.DesktopStream start|stop|status|doctor|logs|run|latency [--config path] [--microphone]");
+        Console.Error.WriteLine("Usage: Raumfeld.DesktopStream start|stop|status|doctor|logs|run|latency [--config path] [--microphone]");
         return 2;
     }
 
@@ -187,7 +187,7 @@ try
     }
     catch (IOException)
     {
-        Console.WriteLine("Raumklang Desktop Stream is already running for this user.");
+        Console.WriteLine("Raumfeld Desktop Stream is already running for this user.");
         return 0;
     }
 
@@ -297,7 +297,7 @@ static async Task<int> DoctorAsync(Configuration config)
         else
         {
             // Check capture and HTTP without loading media on the receiver.
-            await using var server = new Raumklang.DesktopStream.Streaming.AudioHttpServer();
+            await using var server = new Raumfeld.DesktopStream.Streaming.AudioHttpServer();
             await server.StartAsync(local, config.StreamPort, hostIp, timeout.Token);
             using var audio = new AudioPipeline(config, server);
             using var audioStop = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token);

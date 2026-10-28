@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace Raumklang.DesktopStream.Audio;
+namespace Raumfeld.DesktopStream.Audio;
 
 internal static class LameNative
 {

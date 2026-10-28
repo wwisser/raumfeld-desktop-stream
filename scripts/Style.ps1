@@ -15,7 +15,7 @@ if (-not (Test-Path -LiteralPath $modulePath)) {
 
 Import-Module $modulePath
 $settings = Join-Path $repo 'PSScriptAnalyzerSettings.psd1'
-$formatArguments = @('format', (Join-Path $repo 'Raumklang.DesktopStream.slnx'), '--severity', 'warn')
+$formatArguments = @('format', (Join-Path $repo 'Raumfeld.DesktopStream.slnx'), '--severity', 'warn')
 if ($Check) {
     $formatArguments += '--verify-no-changes'
 }

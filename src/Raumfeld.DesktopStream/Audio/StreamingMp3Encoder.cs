@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using NAudio.Wave;
 
-namespace Raumklang.DesktopStream.Audio;
+namespace Raumfeld.DesktopStream.Audio;
 
 public sealed class StreamingMp3Encoder : IDisposable
 {

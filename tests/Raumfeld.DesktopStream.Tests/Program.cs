@@ -11,12 +11,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NAudio.Lame;
 using NAudio.Wave;
-using Raumklang.DesktopStream;
-using Raumklang.DesktopStream.Audio;
-using Raumklang.DesktopStream.Diagnostics;
-using Raumklang.DesktopStream.Raumfeld;
-using Raumklang.DesktopStream.Runtime;
-using Raumklang.DesktopStream.Streaming;
+using Raumfeld.DesktopStream;
+using Raumfeld.DesktopStream.Audio;
+using Raumfeld.DesktopStream.Diagnostics;
+using Raumfeld.DesktopStream.Raumfeld;
+using Raumfeld.DesktopStream.Runtime;
+using Raumfeld.DesktopStream.Streaming;
 
 int failures = 0;
 int passed = 0;
@@ -296,7 +296,7 @@ await TestAsync("live HTTP MP3 headers, dynamic URL, disconnect/reconnect, silen
 });
 await TestAsync("exclusive worker lock rejects duplicate owners and releases after stop", () =>
 {
-    string path = Path.Combine(Path.GetTempPath(), "Raumklang.DesktopStream-test-" + Guid.NewGuid() + ".lock");
+    string path = Path.Combine(Path.GetTempPath(), "Raumfeld.DesktopStream-test-" + Guid.NewGuid() + ".lock");
     try
     {
         using (var owner = new InstanceLock(path))
@@ -322,7 +322,7 @@ await TestAsync("exclusive worker lock rejects duplicate owners and releases aft
 });
 await TestAsync("named pipe status comes from worker; stop cancels lifetime and pipe closes", async () =>
 {
-    string pipeName = "Raumklang.DesktopStream-test-" + Guid.NewGuid().ToString("N");
+    string pipeName = "Raumfeld.DesktopStream-test-" + Guid.NewGuid().ToString("N");
     using var sessionStop = new CancellationTokenSource();
     using var ipcStop = new CancellationTokenSource();
     var session = new Session(new());

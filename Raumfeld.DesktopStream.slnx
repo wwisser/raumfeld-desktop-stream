@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Raumfeld.DesktopStream/Raumfeld.DesktopStream.csproj" />
+    <Project Path="src/Raumfeld.Tray/Raumfeld.Tray.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Raumfeld.DesktopStream.Tests/Raumfeld.DesktopStream.Tests.csproj" />
+  </Folder>
+</Solution>
